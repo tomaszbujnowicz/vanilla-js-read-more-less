@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>A dependency-free Vanilla JS read more/less functionality</title>
+</head>
+
+<body>
+
+  <style>
+    .read-more {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 1rem;
+    }
+    .read-more__content {
+      overflow: hidden;
+      transition: height .3s;
+    }
+    .read-more__footer {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 1);
+    }
+    .read-more__footer:before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 80px;
+      top: -80px;
+      left: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%); 
+      transition: opacity .3s;
+    }
+    .read-more.is-active .read-more__footer:before {
+      opacity: 0;
+    }   
+  </style>
+
+  <h1>
+    A dependency-free Vanilla JS read more/less functionality
+    <a href="https://github.com/tomaszbujnowicz/vanilla-js-read-more-less">GitHub repo</a>
+  </h1>
+
+  <div style="width: 480px;">
+
+    <div class="read-more" data-more>
+      <div class="read-more__content" data-more-content data-more-height="150" style="height: 150px">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum autem similique debitis, quam officia ipsa consequuntur, eos voluptates sint temporibus ullam qui, commodi id harum veritatis exercitationem! Non, est possimus?
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam tenetur perferendis, distinctio sequi fuga vero. Labore, velit! Atque minima minus, fugit non dolor repellat provident est consequatur blanditiis, temporibus magnam?
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque, asperiores voluptate voluptatem atque iure quasi! Mollitia soluta corrupti officiis id corporis ut. Labore aperiam est nemo autem, debitis error similique.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem maxime a sapiente fuga, quae, voluptas mollitia laudantium, facilis neque animi praesentium? Et nobis provident eaque dicta quidem alias maxime neque.
+        </p>
+      </div>
+      <div class="read-more__footer" data-more-footer>
+        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Read more" data-more-text-less="Read less">
+          Read more
+        </a>
+      </div>
+    </div>
+
+    <br>
+
+    <div class="read-more" data-more>
+      <div class="read-more__content" data-more-content data-more-height="80" style="height: 80px">
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil at magni corrupti laborum dicta delectus. Vero minus dolores quas numquam aperiam quasi perspiciatis. Est ullam neque inventore quo? Ipsum, est.
+        </p>
+        <p>
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ea exercitationem magni culpa voluptate ex, aliquid enim eveniet eligendi assumenda, earum quibusdam odit commodi quasi blanditiis voluptates deserunt aut odio corporis.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsum veniam similique alias dolorem tenetur nobis perferendis enim sapiente molestias suscipit rerum quo deserunt expedita odio, ad odit, rem eius pariatur.
+        </p>
+      </div>
+      <div class="read-more__footer" data-more-footer>
+        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Show me more" data-more-text-less="Show me less">
+          Show me more
+        </a>
+      </div>
+    </div>  
+
+  </div>
+  
+  <script>
+
+    /*!
+    * Based on
+    * Immediately Invoked Function Expression Boilerplate
+    * https://gomakethings.com
+    */
+    
+    ;(function () {
+      'use strict';
+
+      // Default settings
+      var settings = {
+        speed: 300,
+        activeClass: 'is-active',
+        selector: '[data-more]',
+        selectorFooter: '[data-more-footer]',
+        selectorTrigger: '[data-more-trigger]',
+        selectorContent: '[data-more-content]',
+      };
+
+      /**
+      * Element.closest() polyfill
+      * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
+      */
+      if (!Element.prototype.closest) {
+        if (!Element.prototype.matches) {
+          Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        Element.prototype.closest = function (s) {
+          var el = this;
+          var ancestor = this;
+          if (!document.documentElement.contains(el)) return null;
+          do {
+            if (ancestor.matches(s)) return ancestor;
+            ancestor = ancestor.parentElement;
+          } while (ancestor !== null);
+          return null;
+        };
+      }
+
+      /**
+       * Handle events
+       * @private
+       */
+
+      // Show an element
+      var show = function (trigger, target, parent) {
+
+        // Get the natural height of the element
+        var getHeight = function () {
+          var height = target.scrollHeight + 'px'; // Get it's height
+          return height;
+        };
+
+        var height = getHeight(); // Get the natural height
+        parent.classList.add(settings.activeClass); // Add active class to the parent element
+        target.style.height = height; // Update the max-height
+
+        // Update the text
+        var textLess = trigger.dataset.moreTextLess;
+        trigger.textContent = textLess;
+        
+        // Once the transition is complete, remove the inline max-height so the content can scale responsively
+        window.setTimeout(function () {
+          target.style.height = '';
+        }, settings.speed);
+
+      };
+
+      // Hide an element
+      var hide = function (trigger, target, parent) {
+
+        var heightDefined = target.dataset.moreHeight;
+
+	      // Give the element a height to change from
+	      target.style.height = target.scrollHeight + 'px';
+        parent.classList.remove(settings.activeClass);  // Remove active class to the parent element
+        
+        // Update the text
+        var textMore = trigger.dataset.moreTextMore;
+        trigger.textContent = textMore;
+
+        // Set the height back to 0
+        window.setTimeout(function () {
+          target.style.height = heightDefined + 'px';
+        }, 1);
+
+      };
+
+      // Toggle element visibility
+      var toggleContent = function (trigger, target, parent) {
+
+        // If the element is visible, hide it
+        if (parent.classList.contains(settings.activeClass)) {
+          hide(trigger, target, parent);
+          return;
+        }
+
+        // Otherwise, show it
+        show(trigger, target, parent);
+
+      };
+
+      // Disable when the content is shorter, reset height to auto and remove footer
+      var disable = function (elem) {
+        for (var i = 0; i < elem.length; i++) {
+          var el = contentElements[i],
+              height = el.scrollHeight,
+              heightDefined = el.dataset.moreHeight,
+              parent = el.closest(settings.selector),
+              footer = parent.querySelector(settings.selectorFooter);
+
+            if (height > 0 && height == heightDefined) { 
+              el.style.height = 'auto';
+              footer.style.display = 'none';
+            }
+        }
+      };
+
+      // Click Handler
+      var clickHandler = function (event) {
+        
+        // Prevent default link behavior
+        event.preventDefault();
+
+        // Find elements
+        var toggle = event.target,
+            trigger = toggle.closest(settings.selectorTrigger);
+
+        // Toogle content
+        if (trigger) {
+          var parent = toggle.closest(settings.selector),
+              target = parent.querySelector(settings.selectorContent);                        
+          toggleContent(trigger, target, parent);
+        }
+
+      };
+
+      // Toggle content on click
+      document.addEventListener('click', clickHandler, false);
+
+      // Disable when the real content is shorter
+      var contentElements = document.querySelectorAll(settings.selectorContent);
+      disable(contentElements);
+
+    })();
+
+  </script>
+
+
+</body>
+</html>
