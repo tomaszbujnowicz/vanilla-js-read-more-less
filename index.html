@@ -168,9 +168,9 @@
       var hide = function (trigger, target, parent) {
 
         var heightDefined = target.dataset.moreHeight;
-
-	      // Give the element a height to change from
-	      target.style.height = target.scrollHeight + 'px';
+        
+        // Give the element a height to change from
+        target.style.height = target.scrollHeight + 'px';
         parent.classList.remove(settings.activeClass);  // Remove active class to the parent element
         
         // Update the text
