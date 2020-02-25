@@ -105,15 +105,6 @@
     ;(function () {
       'use strict';
 
-      // Default settings
-      var settings = {
-        speed: 300,
-        activeClass: 'is-active',
-        selector: '[data-more]',
-        selectorFooter: '[data-more-footer]',
-        selectorTrigger: '[data-more-trigger]',
-        selectorContent: '[data-more-content]',
-      };
 
       /**
       * Element.closest() polyfill
@@ -135,12 +126,25 @@
         };
       }
 
-      /**
-       * Handle events
-       * @private
-       */
 
-      // Show an element
+      //
+      // Settings
+      //
+      var settings = {
+        speed: 300,
+        activeClass: 'is-active',
+        selector: '[data-more]',
+        selectorFooter: '[data-more-footer]',
+        selectorTrigger: '[data-more-trigger]',
+        selectorContent: '[data-more-content]',
+      };
+
+
+      //
+      // Methods
+      //
+
+      // Show
       var show = function (trigger, target, parent) {
 
         // Get the natural height of the element
@@ -164,7 +168,7 @@
 
       };
 
-      // Hide an element
+      // Hide
       var hide = function (trigger, target, parent) {
 
         var heightDefined = target.dataset.moreHeight;
@@ -184,7 +188,7 @@
 
       };
 
-      // Toggle element visibility
+      // Toggle
       var toggleContent = function (trigger, target, parent) {
 
         // If the element is visible, hide it
@@ -198,7 +202,8 @@
 
       };
 
-      // Disable when the content is shorter, reset height to auto and remove footer
+      // Disable
+      // when the content is shorter, reset height to auto and remove footer button
       var disable = function (elem) {
         for (var i = 0; i < elem.length; i++) {
           var el = contentElements[i],
@@ -217,35 +222,40 @@
       // Click Handler
       var clickHandler = function (event) {
       
-        // Find elements
-        var toggle = event.target,
-            trigger = toggle.closest(settings.selectorTrigger);
+        // Find trigger
+        var trigger = event.target.closest(settings.selectorTrigger);
 
         if (trigger) {
 
           // Prevent default link behavior
           event.preventDefault();          
 
-          var parent = toggle.closest(settings.selector),
+          var parent = event.target.closest(settings.selector),
               target = parent.querySelector(settings.selectorContent);
 
           // Toogle content
           toggleContent(trigger, target, parent);
+
         }
 
       };
 
-      // Toggle content on click
-      document.addEventListener('click', clickHandler, false);
 
-      // Disable when the real content is shorter
+      //
+      // Inits & Event Listeners
+      //
+
+      // Toggle content on click
+      document.addEventListener('click', clickHandler, false);   
+
+      // Disable when the real content is shorter than defined height
       var contentElements = document.querySelectorAll(settings.selectorContent);
       disable(contentElements);
+
 
     })();
 
   </script>
-
 
 </body>
 </html>
