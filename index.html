@@ -15,10 +15,12 @@
       overflow: hidden;
       padding-bottom: 1rem;
     }
+
     .read-more__content {
       overflow: hidden;
       transition: height .3s;
     }
+
     .read-more__footer {
       position: absolute;
       left: 0;
@@ -26,6 +28,7 @@
       width: 100%;
       background-color: rgba(255, 255, 255, 1);
     }
+
     .read-more__footer:before {
       content: '';
       display: block;
@@ -34,12 +37,13 @@
       height: 80px;
       top: -80px;
       left: 0;
-      background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%); 
+      background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
       transition: opacity .3s;
     }
+
     .read-more.is-active .read-more__footer:before {
       opacity: 0;
-    }   
+    }
   </style>
 
   <h1>
@@ -52,20 +56,29 @@
     <div class="read-more" data-more>
       <div class="read-more__content" data-more-content data-more-height="150" style="height: 150px">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum autem similique debitis, quam officia ipsa consequuntur, eos voluptates sint temporibus ullam qui, commodi id harum veritatis exercitationem! Non, est possimus?
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum autem similique debitis, quam officia ipsa
+          consequuntur, eos voluptates sint temporibus ullam qui, commodi id harum veritatis exercitationem! Non, est
+          possimus?
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam tenetur perferendis, distinctio sequi fuga vero. Labore, velit! Atque minima minus, fugit non dolor repellat provident est consequatur blanditiis, temporibus magnam?
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam tenetur perferendis, distinctio sequi fuga
+          vero. Labore, velit! Atque minima minus, fugit non dolor repellat provident est consequatur blanditiis,
+          temporibus magnam?
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque, asperiores voluptate voluptatem atque iure quasi! Mollitia soluta corrupti officiis id corporis ut. Labore aperiam est nemo autem, debitis error similique.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque, asperiores voluptate voluptatem atque iure
+          quasi! Mollitia soluta corrupti officiis id corporis ut. Labore aperiam est nemo autem, debitis error
+          similique.
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem maxime a sapiente fuga, quae, voluptas mollitia laudantium, facilis neque animi praesentium? Et nobis provident eaque dicta quidem alias maxime neque.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem maxime a sapiente fuga, quae, voluptas
+          mollitia laudantium, facilis neque animi praesentium? Et nobis provident eaque dicta quidem alias maxime
+          neque.
         </p>
       </div>
       <div class="read-more__footer" data-more-footer>
-        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Read more" data-more-text-less="Read less">
+        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Read more"
+          data-more-text-less="Read less">
           Read more
         </a>
       </div>
@@ -76,24 +89,29 @@
     <div class="read-more" data-more>
       <div class="read-more__content" data-more-content data-more-height="80" style="height: 80px">
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil at magni corrupti laborum dicta delectus. Vero minus dolores quas numquam aperiam quasi perspiciatis. Est ullam neque inventore quo? Ipsum, est.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil at magni corrupti laborum dicta delectus. Vero
+          minus dolores quas numquam aperiam quasi perspiciatis. Est ullam neque inventore quo? Ipsum, est.
         </p>
         <p>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ea exercitationem magni culpa voluptate ex, aliquid enim eveniet eligendi assumenda, earum quibusdam odit commodi quasi blanditiis voluptates deserunt aut odio corporis.
+          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ea exercitationem magni culpa voluptate ex, aliquid
+          enim eveniet eligendi assumenda, earum quibusdam odit commodi quasi blanditiis voluptates deserunt aut odio
+          corporis.
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsum veniam similique alias dolorem tenetur nobis perferendis enim sapiente molestias suscipit rerum quo deserunt expedita odio, ad odit, rem eius pariatur.
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ipsum veniam similique alias dolorem tenetur nobis
+          perferendis enim sapiente molestias suscipit rerum quo deserunt expedita odio, ad odit, rem eius pariatur.
         </p>
       </div>
       <div class="read-more__footer" data-more-footer>
-        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Show me more" data-more-text-less="Show me less">
+        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Show me more"
+          data-more-text-less="Show me less">
           Show me more
         </a>
       </div>
-    </div>  
+    </div>
 
   </div>
-  
+
   <script>
 
     /*!
@@ -101,7 +119,7 @@
     * Immediately Invoked Function Expression Boilerplate
     * https://gomakethings.com
     */
-    
+
     ;(function () {
       'use strict';
 
@@ -160,7 +178,7 @@
         // Update the text
         var textLess = trigger.dataset.moreTextLess;
         trigger.textContent = textLess;
-        
+
         // Once the transition is complete, remove the inline max-height so the content can scale responsively
         window.setTimeout(function () {
           target.style.height = '';
@@ -172,11 +190,11 @@
       var hide = function (trigger, target, parent) {
 
         var heightDefined = target.dataset.moreHeight;
-        
+
         // Give the element a height to change from
         target.style.height = target.scrollHeight + 'px';
         parent.classList.remove(settings.activeClass);  // Remove active class to the parent element
-        
+
         // Update the text
         var textMore = trigger.dataset.moreTextMore;
         trigger.textContent = textMore;
@@ -207,31 +225,31 @@
       var disable = function (elem) {
         for (var i = 0; i < elem.length; i++) {
           var el = contentElements[i],
-              height = el.scrollHeight,
-              heightDefined = el.dataset.moreHeight,
-              parent = el.closest(settings.selector),
-              footer = parent.querySelector(settings.selectorFooter);
+            height = el.scrollHeight,
+            heightDefined = el.dataset.moreHeight,
+            parent = el.closest(settings.selector),
+            footer = parent.querySelector(settings.selectorFooter);
 
-            if (height > 0 && height == heightDefined) { 
-              el.style.height = 'auto';
-              footer.style.display = 'none';
-            }
+          if (height > 0 && height == heightDefined) {
+            el.style.height = 'auto';
+            footer.style.display = 'none';
+          }
         }
       };
 
       // Click Handler
       var clickHandler = function (event) {
-      
+
         // Find trigger
         var trigger = event.target.closest(settings.selectorTrigger);
 
         if (trigger) {
 
           // Prevent default link behavior
-          event.preventDefault();          
+          event.preventDefault();
 
           var parent = event.target.closest(settings.selector),
-              target = parent.querySelector(settings.selectorContent);
+            target = parent.querySelector(settings.selectorContent);
 
           // Toogle content
           toggleContent(trigger, target, parent);
@@ -246,7 +264,7 @@
       //
 
       // Toggle content on click
-      document.addEventListener('click', clickHandler, false);   
+      document.addEventListener('click', clickHandler, false);
 
       // Disable when the real content is shorter than defined height
       var contentElements = document.querySelectorAll(settings.selectorContent);
