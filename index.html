@@ -221,13 +221,15 @@
         var toggle = event.target,
             trigger = toggle.closest(settings.selectorTrigger);
 
-        // Toogle content
         if (trigger) {
+
           // Prevent default link behavior
           event.preventDefault();          
-          
+
           var parent = toggle.closest(settings.selector),
-              target = parent.querySelector(settings.selectorContent);                        
+              target = parent.querySelector(settings.selectorContent);
+
+          // Toogle content
           toggleContent(trigger, target, parent);
         }
 
