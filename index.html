@@ -216,16 +216,16 @@
 
       // Click Handler
       var clickHandler = function (event) {
-        
-        // Prevent default link behavior
-        event.preventDefault();
-
+      
         // Find elements
         var toggle = event.target,
             trigger = toggle.closest(settings.selectorTrigger);
 
         // Toogle content
         if (trigger) {
+          // Prevent default link behavior
+          event.preventDefault();          
+          
           var parent = toggle.closest(settings.selector),
               target = parent.querySelector(settings.selectorContent);                        
           toggleContent(trigger, target, parent);
