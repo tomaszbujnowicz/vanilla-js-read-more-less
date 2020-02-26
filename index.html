@@ -115,13 +115,11 @@
   <script>
 
     /*!
-    * Based on
-    * Immediately Invoked Function Expression Boilerplate
+    * Based on articles on
     * https://gomakethings.com
     */
 
-    ;(function () {
-      'use strict';
+    var readMoreLess = function () {
 
 
       /**
@@ -207,7 +205,11 @@
       };
 
       // Toggle
-      var toggleContent = function (trigger, target, parent) {
+      var toggleContent = function (event, trigger) {
+
+        // Variables
+        var parent = event.target.closest(settings.selector),
+          target = parent.querySelector(settings.selectorContent);
 
         // If the element is visible, hide it
         if (parent.classList.contains(settings.activeClass)) {
@@ -220,9 +222,8 @@
 
       };
 
-      // Disable
-      // when the content is shorter, reset height to auto and remove footer button
-      var disable = function (elem) {
+      // Destroy. When the content is shorter, reset height to auto and remove footer button
+      var destroy = function (elem) {
         for (var i = 0; i < elem.length; i++) {
           var el = contentElements[i],
             height = el.scrollHeight,
@@ -240,20 +241,15 @@
       // Click Handler
       var clickHandler = function (event) {
 
-        // Find trigger
+        // Only run if clicked element matches our selector
         var trigger = event.target.closest(settings.selectorTrigger);
-
         if (trigger) {
 
           // Prevent default link behavior
-          event.preventDefault();
+          event.preventDefault();          
 
-          var parent = event.target.closest(settings.selector),
-            target = parent.querySelector(settings.selectorContent);
-
-          // Toogle content
-          toggleContent(trigger, target, parent);
-
+          // Toggle Content
+          toggleContent(event, trigger);
         }
 
       };
@@ -266,12 +262,14 @@
       // Toggle content on click
       document.addEventListener('click', clickHandler, false);
 
-      // Disable when the real content is shorter than defined height
+      // Destroy when the real content is shorter than defined height
       var contentElements = document.querySelectorAll(settings.selectorContent);
-      disable(contentElements);
+      destroy(contentElements);
 
 
-    })();
+    };
+
+    readMoreLess();
 
   </script>
 
