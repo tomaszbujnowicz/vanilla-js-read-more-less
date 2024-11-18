@@ -19,6 +19,7 @@
     .read-more__content {
       overflow: hidden;
       transition: height .3s;
+      will-change: height;
     }
 
     .read-more__footer {
@@ -26,10 +27,11 @@
       left: 0;
       bottom: 0;
       width: 100%;
-      background-color: rgba(255, 255, 255, 1);
+      z-index: 1;
+      background-color: #fff;
     }
 
-    .read-more__footer:before {
+    .read-more__footer::before {
       content: '';
       display: block;
       position: absolute;
@@ -37,8 +39,13 @@
       height: 80px;
       top: -80px;
       left: 0;
-      background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
-      transition: opacity .3s;
+      background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+      );
+      transition: opacity 0.3s ease;
+      pointer-events: none;
     }
 
     .read-more.is-active .read-more__footer:before {
@@ -110,165 +117,220 @@
       </div>
     </div>
 
+    <br>
+
+    <div class="read-more" data-more>
+      <div class="read-more__content" data-more-content data-more-height="80" style="height: 200px">
+        <p>
+          Shorter content, no need to show "Read more" button.
+        </p>
+      </div>
+      <div class="read-more__footer" data-more-footer>
+        <a href="#" class="read-more__btn" data-more-trigger data-more-text-more="Show me more"
+          data-more-text-less="Show me less">
+          Show me more
+        </a>
+      </div>
+    </div>    
+
   </div>
 
   <script>
 
-    /*!
-    * Based on articles on
-    * https://gomakethings.com
-    */
+    class ReadMore {
+      constructor(options = {}) {
+        // Default settings with spread operator for custom options
+        this.settings = {
+          speed: 300,
+          activeClass: 'is-active',
+          selector: '[data-more]',
+          selectorFooter: '[data-more-footer]',
+          selectorTrigger: '[data-more-trigger]',
+          selectorContent: '[data-more-content]',
+          ...options
+        };
 
-    var readMoreLess = function () {
+        this.init();
+      }
 
-      /**
-      * Element.closest() polyfill
-      * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
-      */
-      if (!Element.prototype.closest) {
-        if (!Element.prototype.matches) {
-          Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+      init() {
+        // Initialize elements
+        this.elements = document.querySelectorAll(this.settings.selector);
+        if (!this.elements.length) return;
+
+        // Bind events
+        this.bindEvents();
+        
+        // Initial setup
+        this.setupElements();
+        
+        // Initial check for short content
+        this.checkContentLengths();
+      }
+
+      bindEvents() {
+        // Bind with proper context
+        this.clickHandler = this.clickHandler.bind(this);
+        this.resizeHandler = this.debounce(this.checkContentLengths.bind(this), 250);
+
+        // Add event listeners
+        document.addEventListener('click', this.clickHandler);
+        window.addEventListener('resize', this.resizeHandler);
+      }
+
+      setupElements() {
+        this.elements.forEach(element => {
+          const content = element.querySelector(this.settings.selectorContent);
+          if (!content) return;
+
+          // Store original height for future reference
+          content.dataset.originalHeight = content.scrollHeight;
+        });
+      }
+
+      checkContentLengths() {
+        this.elements.forEach(parent => {
+          const content = parent.querySelector(this.settings.selectorContent);
+          const footer = parent.querySelector(this.settings.selectorFooter);
+          if (!content || !footer) return;
+
+          // Temporarily remove any height restrictions to measure true height
+          const originalHeight = content.style.height;
+          content.style.height = 'auto';
+          const actualHeight = content.scrollHeight;
+          
+          const definedHeight = parseInt(content.dataset.moreHeight);
+
+          if (actualHeight <= definedHeight) {
+            content.style.height = 'auto';
+            footer.style.display = 'none';
+          } else {
+            footer.style.display = '';
+            if (!parent.classList.contains(this.settings.activeClass)) {
+              content.style.height = `${definedHeight}px`;
+            } else {
+              content.style.height = originalHeight;
+            }
+          }
+        });
+      }
+
+      clickHandler(event) {
+        const trigger = event.target.closest(this.settings.selectorTrigger);
+        if (!trigger) return;
+
+        event.preventDefault();
+        this.toggleContent(event, trigger);
+      }
+
+      toggleContent(event, trigger) {
+        const parent = trigger.closest(this.settings.selector);
+        const content = parent?.querySelector(this.settings.selectorContent);
+        
+        if (!parent || !content) return;
+
+        if (parent.classList.contains(this.settings.activeClass)) {
+          this.collapse(trigger, content, parent);
+        } else {
+          this.expand(trigger, content, parent);
         }
-        Element.prototype.closest = function (s) {
-          var el = this;
-          var ancestor = this;
-          if (!document.documentElement.contains(el)) return null;
-          do {
-            if (ancestor.matches(s)) return ancestor;
-            ancestor = ancestor.parentElement;
-          } while (ancestor !== null);
-          return null;
+      }
+
+      expand(trigger, content, parent) {
+        // First, get the current height
+        const currentHeight = content.offsetHeight;
+        
+        // Temporarily remove transition and set current height
+        content.style.transition = 'none';
+        content.style.height = `${currentHeight}px`;
+        
+        // Force repaint
+        content.offsetHeight;
+        
+        // Remove any height restrictions to measure full content height
+        content.style.height = '';
+        const targetHeight = content.scrollHeight;
+        
+        // Set back to current height
+        content.style.height = `${currentHeight}px`;
+        
+        // Force repaint again
+        content.offsetHeight;
+        
+        // Add transition and animate to target height
+        content.style.transition = `height ${this.settings.speed}ms ease`;
+        content.style.height = `${targetHeight}px`;
+        
+        parent.classList.add(this.settings.activeClass);
+        trigger.textContent = trigger.dataset.moreTextLess;
+
+        // After animation completes, set height to auto
+        this.onTransitionEnd(content, () => {
+          content.style.height = 'auto';
+        });
+      }
+
+      collapse(trigger, content, parent) {
+        // First, set explicit current height
+        content.style.transition = 'none';
+        content.style.height = `${content.scrollHeight}px`;
+        
+        // Force repaint
+        content.offsetHeight;
+        
+        // Add transition
+        content.style.transition = `height ${this.settings.speed}ms ease`;
+        
+        // On next frame, set target height
+        requestAnimationFrame(() => {
+          const definedHeight = content.dataset.moreHeight;
+          content.style.height = `${definedHeight}px`;
+        });
+        
+        parent.classList.remove(this.settings.activeClass);
+        trigger.textContent = trigger.dataset.moreTextMore;
+      }
+
+      onTransitionEnd(element, callback) {
+        const handler = (e) => {
+          if (e.target === element && e.propertyName === 'height') {
+            element.removeEventListener('transitionend', handler);
+            callback();
+          }
+        };
+        element.addEventListener('transitionend', handler);
+      }
+
+      debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
         };
       }
 
-
-      //
-      // Settings
-      //
-      var settings = {
-        speed: 300,
-        activeClass: 'is-active',
-        selector: '[data-more]',
-        selectorFooter: '[data-more-footer]',
-        selectorTrigger: '[data-more-trigger]',
-        selectorContent: '[data-more-content]',
-      };
-
-
-      //
-      // Methods
-      //
-
-      // Show
-      var show = function (trigger, target, parent) {
-
-        // Get the natural height of the element
-        var getHeight = function () {
-          var height = target.scrollHeight + 'px'; // Get it's height
-          return height;
-        };
-
-        var height = getHeight(); // Get the natural height
-        parent.classList.add(settings.activeClass); // Add active class to the parent element
-        target.style.height = height; // Update the max-height
-
-        // Update the text
-        var textLess = trigger.dataset.moreTextLess;
-        trigger.textContent = textLess;
-
-        // Once the transition is complete, remove the inline max-height so the content can scale responsively
-        window.setTimeout(function () {
-          target.style.height = '';
-        }, settings.speed);
-
-      };
-
-      // Hide
-      var hide = function (trigger, target, parent) {
-
-        var heightDefined = target.dataset.moreHeight;
-
-        // Give the element a height to change from
-        target.style.height = target.scrollHeight + 'px';
-        parent.classList.remove(settings.activeClass);  // Remove active class to the parent element
-
-        // Update the text
-        var textMore = trigger.dataset.moreTextMore;
-        trigger.textContent = textMore;
-
-        // Set the height back to defined height
-        window.setTimeout(function () {
-          target.style.height = heightDefined + 'px';
-        }, 1);
-
-      };
-
-      // Toggle
-      var toggleContent = function (event, trigger) {
-
-        // Variables
-        var parent = event.target.closest(settings.selector),
-          target = parent.querySelector(settings.selectorContent);
-
-        // If the element is visible, hide it
-        if (parent.classList.contains(settings.activeClass)) {
-          hide(trigger, target, parent);
-          return;
-        }
-
-        // Otherwise, show it
-        show(trigger, target, parent);
-
-      };
-
-      // Destroy. When the content is shorter, reset height to auto and remove footer button
-      var destroy = function (elem) {
-        for (var i = 0; i < elem.length; i++) {
-          var el = contentElements[i],
-            height = el.scrollHeight,
-            heightDefined = el.dataset.moreHeight,
-            parent = el.closest(settings.selector),
-            footer = parent.querySelector(settings.selectorFooter);
-
-          if (height > 0 && height == heightDefined) {
-            el.style.height = 'auto';
-            footer.style.display = 'none';
+      destroy() {
+        // Remove event listeners
+        document.removeEventListener('click', this.clickHandler);
+        window.removeEventListener('resize', this.resizeHandler);
+        
+        // Reset elements
+        this.elements.forEach(parent => {
+          const content = parent.querySelector(this.settings.selectorContent);
+          if (content) {
+            content.style.height = '';
+            content.style.transition = '';
           }
-        }
-      };
+        });
+      }
+    }
 
-      // Click Handler
-      var clickHandler = function (event) {
-
-        // Only run if clicked element matches our selector
-        var trigger = event.target.closest(settings.selectorTrigger);
-        if (trigger) {
-
-          // Prevent default link behavior
-          event.preventDefault();          
-
-          // Toggle Content
-          toggleContent(event, trigger);
-        }
-
-      };
-
-
-      //
-      // Inits & Event Listeners
-      //
-
-      // Toggle content on click
-      document.addEventListener('click', clickHandler, false);
-
-      // Destroy when the real content is shorter than defined height
-      var contentElements = document.querySelectorAll(settings.selectorContent);
-      destroy(contentElements);
-
-
-    };
-
-    readMoreLess();
+    // Initialize
+    const readMore = new ReadMore();
 
   </script>
 
